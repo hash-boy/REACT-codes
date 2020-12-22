@@ -1,0 +1,464 @@
+
+### folder distribution
+
+src
+|-components           (here will be all folder of components)
+|   |-Cockpit          (there wiil be all defaults folders which not used twich)
+|   |-another folders
+|
+|-container             (hold only main folders)
+|   |-App.js
+|   |-App.css
+|
+|-hoc
+|  |-Aux.js
+|
+|-context
+|   |-auth-context.js
+|
+
+
+
+
+###(3) passing value by 3step file
+
+    App.js : 
+        <Persons
+            persons={this.state.persons}
+            click={this.deletePersonHandler}
+            changed={this.nameChangedHandler} />
+
+    Persons :
+        <Person
+            click={()=>props.click(index)}
+            name={person.name}
+            age={person.age}
+            key={person.id}
+            changed={event => props.changed(event, person.id)} />
+    
+    person :
+        <div className={classes.Person}>
+            <p onClick={props.click}>
+                I'm {props.name} and I am {props.age} years old!
+            </p>
+            <p>{props.children}</p>
+            <input type="text" onChange={props.changed} value={props.name} />
+        </div>
+
+
+
+###(6) Class Based Lifecycle functions
+
+            |- constructor()            << there can hold super(), state. not use setState >>
+            |
+            |- getDerivedStateFromProps(props, state)           << not used usually >>
+            |
+            |- shouldComponentUpdate(nextProps, nextProps)
+            |
+            |- getSnapShotBeforeUpdate(prevProps, prevState)
+            |
+            |- componentDidUpdate(prevProps, prevState, snapShot)     << getSnapShotBeforeUpdate() return value the snapShot got a value
+            |
+            |- componentDidCatch()
+            |
+            |- componentDidMount()
+            |
+            |- componentWillMount()         << excute after the render() method >>
+            |
+            |- componentWillUnmount()       << after remove a value excute this >>
+            |
+            |- render()
+    
+
+###(8)  Lifecycle
+
+        Lifecycle-1    
+            |-> constructor
+            |-> getDerivedStateFromProps(props, state) 
+            |-> shouldComponentUpdate(nextProps, nextProps)
+            |-> render()
+            |-> render child components
+            |-> componentDidMount()
+
+        Lifecycle-2
+            |-> getDerivedStateFromProps(props, state) 
+            |-> shouldComponentUpdate(nextProps, nextProps)
+            |-> render()
+            |-> update child components props
+            |-> getSnapShotBeforeUpdate(prevProps, prevState)
+            |-> componentDidUpdate(prevProps, prevState, snapShot)
+            
+
+
+###(11) useEffect()     << import React, { useEffect } from 'react' >>
+
+        - alwyse excute after render()  
+
+                useEffect(()=>{
+                    ......
+                });
+        
+
+        - Only excute when the percular array's will changed
+
+                useEffect(()=>{
+                    ......
+                }, [arr1, arr2,...]);
+        
+
+        - only one time excute when if page render more time
+
+                useEffect(()=>{
+                    ......
+                }, []);
+            but this again can be render when componentWillUnmount() excute
+
+
+
+###(14) shouldComponentUpdate()
+
+        scene-1:
+            shouldComponentUpdate(nextProps, nextState){
+                return true;
+            }
+        // this code render the class when props will be update or not
+
+        scene-2:
+            shouldComponentUpdate(nextProps, nextState){
+                if(nextProps.person !== this.props.person &&
+                   nextProps.clicked !=== this.props.clicked)  // here can be add more function
+                {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        // this class render if the props is update.
+        // this functions is power for reduce the unnecessary render
+
+    ** PureComponent
+        despite of shouldComponentUpdate() we can use PureComponent.
+        PureComponent is works for reduce rendering if class components not update.
+
+        import React, { PureComponent } from 'react'
+        class XY extends PureComponent { 
+            ...
+        }
+
+
+###(15) React.memo(class-name)
+
+    export defaults React.memo(class-name)
+
+    // memo works for save the class not to render more than one time.
+    // some defaults class like Cockpit should not render more than one time
+    // memo used in defaults classes which are constant.
+
+
+###(19) Adjacent JSX 
+
+    process-1:
+
+        return[
+            <h1> ... </h1>,
+            <div> ... </div>,
+            <input> ... </input>
+        ];
+    
+    process-2:
+
+        Aux.js // used Auxilary name, Aux dont support in windows
+                import React from 'react';
+                const aux = props => props.children;
+                export defaults aux
+
+        
+        app.js
+                import Aux from 'Aux.js'
+                .
+                .
+                .
+                return(
+                    <Aux>
+                        <h1> ... </h1>
+                        <div> ... </div>
+                        <input> ... </input>
+                    <Aux>
+                );
+    
+    process-3:
+
+        app.js
+                return(
+                    <React.Fragment>
+                        <h1> ... </h1>
+                        <div> ... </div>
+                        <input> ... </input>
+                    </React.Fragment>
+                );
+
+                << or >>
+
+        app.js
+                import React, { Components, Fragment } from 'react';
+                .
+                .
+                .
+                return(
+                    <Fragment>
+                        <h1> ... </h1>
+                        <div> ... </div>
+                        <input> ... </input>
+                    </Fragment>
+                );
+
+
+###(26) PropTypes
+
+    $ npm install --save prop-Prop
+
+    import PropTypes form 'prop-types';
+
+    class Person extends Components{
+        ....
+    }
+    Person.propTypes = {
+        click: PropTypes.func,
+        name: PropTypes.string,
+        age: PropTypes.number,
+        changed: PropTypes.func
+    };
+
+    export defaults Persons;
+
+
+    // propTypes is used for check the data type goes right or wrong.
+    // in big project it's help to the developer know the datatype of every prop element.
+
+
+
+###(27) Ref in class
+
+    old version:
+            componentDidMount(){            // after excute render() this method execute
+                this.inputElement.focus();
+            }
+
+            render(){
+                .
+                .
+                .
+                <input
+                    ref = { (el)=> {this.inputElement = el}}
+                />
+            }
+    
+    new version:
+            constructor(props) {
+                super(props);
+                this.inputElementRef = React.createRef();
+            }
+
+            componentDidMount() {
+                this.inputElementRef.current.focus();
+            }
+
+            render(){
+                .
+                .
+                .
+                <input
+                    ref = {this.inputElementRef}
+                />
+            }
+
+
+
+###(28) Ref in function
+
+    import React, { useEffect, useRef, useContext } from 'react';
+    
+    const cockpit = props =>{
+
+        const toggleBtnRef = useRef(null); // null is initial value
+
+        useEffect(() => {           // after excute return() this useEffect works
+            toggleBtnRef.current.click();
+        }, []);
+
+        return(
+            <button ref={toggleBtnRef} >
+                click here
+            </button>
+        );
+    }
+
+
+
+###(30) Authentication - contex API
+
+        contex/auth-context.js:
+
+                import React from 'react';
+
+                const authContext = React.createContext({
+                    authenticated: false,
+                    login: () => {}
+                });
+                export default authContext;
+
+
+        App.js:
+                import AuthContext from '../context/auth-context';
+
+                class App extends Component {
+                    state = {
+                        authenticated: false
+                    };
+
+                    loginHandler = () => {
+                        this.setState({ authenticated: true });
+                    };
+
+                    render(){
+                        return(
+                            <AuthContext.Provider
+                                value={{
+                                    authenticated: this.state.authenticated,
+                                    login: this.loginHandler
+                                }}
+                            > 
+                                <Cockpit />         
+                                <Person />
+                            </AuthContext.Provider>
+                        );
+                    }
+                }
+
+        Cockpit.js:
+
+            import AuthContext from '../../context/auth-context';
+
+            const Cockpit = props => {
+                return (
+                    <AuthContext.Consumer>
+                        {
+                            (context)=> 
+                            <button onClick={context.login}>Log in</button>
+                         }
+                    </AuthContext.Consumer>
+                );
+            }
+
+
+        Person.js:
+
+            import AuthContext from '../../../context/auth-context';
+
+            class Person extends Component {
+                render(){
+                    return(
+                        <AuthContext.Consumer>
+                        {
+                            (context) => 
+                                context.authenticated ? 
+                                <p>Authenticated!</p>:<p>Please log in</p> 
+                        }
+                        </AuthContext.Consumer>
+                    );
+                }
+            }
+    
+
+    // cockpit give the login auth is true
+    // app.js true the value of authenticated.
+    // Persons give showed msg if the authenticated is true or false basis result.
+
+
+###(31) Authentication 
+        |- contexType // for class
+        |- useContext() // for function
+
+
+
+        contex/auth-context.js: // like above
+
+                import React from 'react';
+
+                const authContext = React.createContext({
+                    authenticated: false,
+                    login: () => {}
+                });
+                export default authContext;
+
+
+
+        App.js:  // like above
+
+                import AuthContext from '../context/auth-context';
+
+                class App extends Component {
+                    state = {
+                        authenticated: false
+                    };
+
+                    loginHandler = () => {
+                        this.setState({ authenticated: true });
+                    };
+
+                    render(){
+                        return(
+                            <AuthContext.Provider
+                                value={{
+                                    authenticated: this.state.authenticated,
+                                    login: this.loginHandler
+                                }}
+                            > 
+                                <Cockpit />         
+                                <Person />
+                            </AuthContext.Provider>
+                        );
+                    }
+                }
+
+
+
+        << here we use useContext(), function base
+
+        Cockpit.js:     
+
+            import React, { useContext } from 'react';
+            import AuthContext from '../../context/auth-context';
+
+            const Cockpit = props => {
+                const authContext = useContext(AuthContext);
+                console.log('auth',authContext.authenticated);
+
+                return (
+                    <button onClick={authContext.login}>Log in</button>
+                );
+            }
+
+
+        << here we use authContext, class base
+        Person.js:
+
+            import AuthContext from '../../../context/auth-context';
+
+            class Person extends Component {
+                static contextType = AuthContext;
+
+                componentDidMount() {
+                    console.log(this.context.authenticated);  
+                }
+
+                render(){
+                    return(
+                        {
+                            this.context.authenticated ? 
+                                ( <p>Authenticated!!</p> ) : ( <p>Please log in</p> )
+                        }
+                    );
+                }
+            }
