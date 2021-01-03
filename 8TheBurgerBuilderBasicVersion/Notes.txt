@@ -1,0 +1,34 @@
+
+###    Burger Project Basic
+
+        folders
+        |-src
+            |-assets
+            |-components
+            |   |-Burger
+            |   |   |-buildControls
+            |   |   |-BurgerControls
+            |   |   |-BurgerIngredient
+            |   |   |-orderSummary
+            |   |   |-Burger.js
+            |   |
+            |   |-Navigation
+            |   |   |-NavigationItems
+            |   |   |-SideDrawer
+            |   |   |-Toolbar
+            |   |
+            |   |- UI
+            |   |   |-BackDrop
+            |   |   |-Button
+            |   |   |-Modal
+            |
+            |-container
+            |   |-BurgerBuilder
+            |       |-BurgerBuilder.js
+            |
+            |-hoc
+            |   |-Layout
+            |   |   |-Layout.js
+            |   |
+            |   |-Aux
+            |   |   |-Aux.js
