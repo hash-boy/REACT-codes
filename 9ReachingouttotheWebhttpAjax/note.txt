@@ -1,0 +1,258 @@
+
+###(3) axios
+    //axios use despite of xmlhttpRequest
+
+        $ npm install axios --save
+        import axios from 'axios';
+
+###(4) http GET req in class
+
+        // use jsonplaceholder.com for demo data
+        // below are json format data
+        [
+            {
+                "userId": 1,
+                "id": 1,
+                "title": "sunt aut",
+                "body": "quia et suscipit\nsuscipit"
+            },
+            {
+                "userId": 1,
+                "id": 2,
+                "title": "qui est esse",
+                "body": "est rerum temporea"
+            }
+        ]
+
+        //use in lifecyle. axios write after redering componentDidMount()
+
+            componentDidMount(){
+                axios.get('https://jsonplaceholder.typicode.com/posts')
+                    .then(response=>{
+                        console.log(response);  // {data: Array(..),..} data variable e value pass hoy
+                    });
+            }
+
+            //let posts = axios.get('https://.....');
+            // we can't store value in variable. 
+            // cause axios is aynchronus process
+
+
+###(5) store data    
+
+            state={
+                posts: []
+            }
+            componentDidMount(){
+                axios.get('https://.....')
+                    .then(response=>{
+                        this.setState({posts: response.data}); // all json value store in posts
+                    });
+            }
+
+
+###(6) how to display limited value from more json value
+
+        state={
+                posts: []
+            }
+            componentDidMount(){
+                axios.get('https://jsonplaceholder.typicode.com/posts')
+                    .then(response=>{
+                        const posts = response.data.slice(0, 4); // delete value after index 4
+                        const updatePosts = posts.map(post=>{
+                            return {
+                                ...post,
+                                author: 'Max' // add new value in array
+                            }
+                        });
+                        this.setState({posts: updatePosts});
+                        //console.log(response);
+                })
+            }
+
+###(8) Fetching data by id and  update from server 
+
+    use componentDidUpdate() for update child props.
+
+        state = {
+            loadedPost: null
+        }
+
+    wrong:
+        componentDidUpdate(){
+            if(this.props.id){
+                axios.get('https://jsonplaceholder.typicode.com/posts/'+ this.props.id)
+                .then(response =>{
+                    //console.log(response);
+                    this.setState({loadedPost: response.data})
+                })
+            } 
+        }
+    //this is wrong format cz this going to in infinite loop.
+    // cause loadedPost get same data and update the componentDidUpdate
+
+    right:
+        componentDidUpdate(){
+            if(this.props.id){
+                if(!this.state.loadedPost || (this.state.loadedPost && this.state.loadedPost.id !== this.props.id) ){
+                    axios.get('https://jsonplaceholder.typicode.com/posts/'+ this.props.id)
+                        .then(response =>{
+                            //console.log(response);
+                            this.setState({loadedPost: response.data})
+                        })
+                }
+            } 
+        }
+
+    // we should use if checks properly which are here 
+    //so we can avoid infinite loop
+
+    
+
+     render () {
+        if(this.props.id){          // this execute firs time.
+            post = <p style={{textAlign: 'center'}}>Loading...!</p>;
+        }
+
+        if(this.state.loadedPost){           // after update loadedPost this clause execute
+            post = (
+                <div className="FullPost">
+                    <h1>{this.state.loadedPost.title}</h1>
+                    <p>{this.state.loadedPost.body}</p>
+                </div>
+            );
+        }
+
+        return post;
+    }
+
+
+###(9) Posting data to server
+
+    state = {
+        title: '',
+        content: '',
+        author: 'Max'
+    }
+    postDataHandler = ()=>{
+        const data = {
+            title: this.state.title,
+            body: this.state.content,
+            author: this.state.author
+        }
+        axios.post('https://jsonplaceholder.typicode.com/posts', data) // post method make data variable in json format
+            .then(response =>{
+                console.log(response);      // status: 201 which indicate post successfully
+            })
+    }
+
+    render () {
+        return (
+            <div className="NewPost">
+                .
+                .
+                <button onClick={this.postDataHandler}>Add Post</button>
+            </div>
+        );
+    }
+
+
+###(10) Delete data to server 
+
+    deletePostHandler = ()=>{
+        axios.delete('https://jsonplaceholder.typicode.com/posts/'+ this.props.id)
+            .then(response=>{
+                console.log(response); // successful status code 200
+            })
+    }
+
+    <button onClick={this.deletePostHandler} >Delete</button>
+
+###(12) how to use error
+
+    state={
+        error: false
+    }
+    componentDidMount(){
+        axios.get('https://jsonplaceholder.typicode.com/posts')
+            .then(response=>{
+                ...
+            })
+            .catch(error => {
+                this.setState({error: true })
+            })
+    }
+
+    render () {
+        let posts = <p style={{textAlign: 'center'}}> Something went wrong..!</p>
+        
+        if(!this.state.error){
+            posts =  ... // main codes
+        }
+    
+        return (        
+            {posts}    
+        );
+    }
+
+
+    // if error occurs then error msg shown - Something went wrong..!
+
+
+### Base url
+        index.js 
+            axios.defaults.baseURL = 'https://jsonplaceholder.typicode.com';
+        
+        other_file.js
+            axios.get('/post')
+            axios.post('/post')
+
+        note: full url not to be write if we define base url first
+    
+
+    
+###(13) Interceptors
+        axios.interceptors.request.use(request => {
+            console.log(request);
+            // Edit request config
+            return request;
+        }, error => {
+            console.log(error);
+            return Promise.reject(error);
+        });
+
+        axios.interceptors.response.use(response => {
+            console.log(response);
+            // Edit request config
+            return response;
+        }, error => {
+            console.log(error);
+            return Promise.reject(error);
+        });
+
+
+
+###(14) global axios configuration
+
+        axios.defaults.baseURL = 'https://jsonplaceholder.typicode.com';
+        axios.defaults.headers.common['Authorization'] = 'AUTH TOKEN';
+        axios.defaults.headers.post['Content-Type'] = 'application/json';
+    
+
+
+###(15) axios instance
+
+        axios.js
+
+            import axios from 'axios';
+
+            const instance = axios.create({
+                baseURL: 'https://jsonplaceholder.typicode.com'
+            });
+
+            instance.defaults.headers.common['Authorization'] = 'AUTH TOKEN FROM INSTANCE';
+
+            // instance.interceptors.request...
+
+            export default instance;
