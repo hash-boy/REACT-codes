@@ -1,0 +1,17 @@
+============ max =============
+** install react
+
+ $ npx create-react-app frontend 
+ //frontend is folder name, and main folder name error for use ($)
+ $ npm start
+ 
+ 
+ $ npm install -save prop-types
+ 
+ 
+  $ npm install axios --save
+
+  ### comments
+        {/*
+            ...... 
+        */}
